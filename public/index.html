@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>최근 3일 식단 기반 내일 메뉴 예측</title>
+  <style>
+    body { font-family: sans-serif; max-width: 450px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 12px; }
+    h2 { text-align: center; color: #333; }
+    ul { list-style: none; padding: 0; }
+    li { background: #f8f9fa; margin: 8px 0; padding: 12px; border-radius: 6px; border-left: 4px solid #0070f3; }
+    .result { margin-top: 24px; padding: 16px; background: #e6f7ff; border-radius: 8px; font-weight: bold; color: #0050b3; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <h2>🍱 최근 3일 식단 & 예측</h2>
+  
+  <h3>지난 3일간 메뉴 (자동 불러오기)</h3>
+  <ul id="past-menus">
+    <li>DB에서 데이터를 불러오는 중...</li>
+  </ul>
+
+  <div class="result">
+    🔮 내일 예상 메뉴: <span id="predicted-menu">계산 중...</span>
+  </div>
+
+  <script>
+    async function loadData() {
+      try {
+        const response = await fetch('/api/predict');
+        const data = await response.json();
+
+        const listEl = document.getElementById('past-menus');
+        listEl.innerHTML = '';
+        
+        data.pastMenus.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `${item.date} (${item.day}): ${item.menu}`;
+          listEl.appendChild(li);
+        });
+
+        document.getElementById('predicted-menu').textContent = data.prediction;
+      } catch (err) {
+        document.getElementById('past-menus').innerHTML = '<li>데이터 조회 실패</li>';
+      }
+    }
+
+    window.onload = loadData;
+  </script>
+</body>
+</html>
